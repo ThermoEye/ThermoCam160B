@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermoCam160B", "ThermoCam160B.csproj", "{C02734AD-E6C7-457B-B771-329CFA1BCADE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C02734AD-E6C7-457B-B771-329CFA1BCADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C02734AD-E6C7-457B-B771-329CFA1BCADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C02734AD-E6C7-457B-B771-329CFA1BCADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C02734AD-E6C7-457B-B771-329CFA1BCADE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F855729-9698-48CC-A8AA-A91F296FFDEC}
+	EndGlobalSection
+EndGlobal
