@@ -41,11 +41,14 @@ namespace ThermoCam160B
 
             if(base.Connect(portName, camDevice, width, height, fps, bpp))
             {
-                foreach (var usb in FindUsbPort("1209", "0160"))
+                if (portName == "ThermoCam160")
                 {
-                    if (vcpPort == null && !string.IsNullOrWhiteSpace(usb.PortName))
+                    foreach (var usb in FindUsbPort("1209", "0160"))
                     {
-                        if (base.ConnectPort(usb.PortName)) return true;
+                        if (vcpPort == null && !string.IsNullOrWhiteSpace(usb.PortName))
+                        {
+                            if (base.ConnectPort(usb.PortName)) return true;
+                        }
                     }
                 }
             }

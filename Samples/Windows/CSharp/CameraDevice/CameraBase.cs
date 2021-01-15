@@ -65,7 +65,8 @@ namespace ThermoCam160B
         {
             get
             {
-                if (dsCamera != null && vcpPort.IsOpen) return true;
+                //if (dsCamera != null && vcpPort != null) return true;
+                if (dsCamera != null ) return true;
                 else return false;
             }
         }
@@ -96,7 +97,13 @@ namespace ThermoCam160B
             }
             this.pFrameBuffer = Marshal.AllocHGlobal(width * height * bpp / 8);
 
-            this.matFrame = new Mat(height, width, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
+            if (bpp == 16)
+            {
+                this.matFrame = new Mat(height, width, Emgu.CV.CvEnum.DepthType.Cv16U, 1);
+            }else
+            {
+                this.matFrame = new Mat(height, width, Emgu.CV.CvEnum.DepthType.Cv8U, bpp / 8);
+            }
 
             this.frameSize.Width = width;
             this.frameSize.Height = height;
@@ -109,7 +116,13 @@ namespace ThermoCam160B
                 this.dsCamera = new DirectShowCam();
                 if (this.dsCamera != null)
                 {
-                    this.dsCamera.Open(camDevice, width, height, fps, bpp, this, MediaSubFormat.Y16);
+                    if (bpp == 16)
+                    {
+                        this.dsCamera.Open(camDevice, width, height, fps, bpp, this, MediaSubFormat.Y16);
+                    }else
+                    {
+                        this.dsCamera.Open(camDevice, width, height, fps, bpp, this, MediaSubType.Null);
+                    }
                     this.dsCamera.Run();
 
                     return true;
@@ -192,12 +205,24 @@ namespace ThermoCam160B
             if (pFrameBuffer != IntPtr.Zero)
             {
                 this.matFrame.Dispose();
-                this.matFrame = new Mat(frameSize.Height, frameSize.Width, Emgu.CV.CvEnum.DepthType.Cv16U, 1, (IntPtr)pFrameBuffer, frameSize.Width * frameBPP / 8);
-                if(this.matFrame != null)
-                {
-                    CvInvoke.Flip(this.matFrame, this.matFrame, Emgu.CV.CvEnum.FlipType.Horizontal);
-                }
 
+                if (frameBPP == 16)
+                {
+                    this.matFrame = new Mat(frameSize.Height, frameSize.Width, Emgu.CV.CvEnum.DepthType.Cv16U, 1, (IntPtr)pFrameBuffer, frameSize.Width * frameBPP / 8);
+                    if (this.matFrame != null)
+                    {
+                        CvInvoke.Flip(this.matFrame, this.matFrame, Emgu.CV.CvEnum.FlipType.Horizontal);
+                    }
+                }
+                else
+                {
+                    matFrame = new Mat(frameSize.Height, frameSize.Width, Emgu.CV.CvEnum.DepthType.Cv8U, frameBPP / 8, (IntPtr)pFrameBuffer, frameSize.Width * frameBPP / 8);
+                    if (this.matFrame != null)
+                    {
+                        CvInvoke.Flip(this.matFrame, this.matFrame, Emgu.CV.CvEnum.FlipType.Horizontal);
+                        CvInvoke.Flip(this.matFrame, this.matFrame, Emgu.CV.CvEnum.FlipType.Vertical);
+                    }
+                }
             }
 
             return this.matFrame;

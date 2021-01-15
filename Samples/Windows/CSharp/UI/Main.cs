@@ -36,7 +36,8 @@ namespace ThermoCam160B
             // initial listup cameras
             enumerateCameras();
 
-            cameraUVC = new CameraUVC(this);
+            tCameraUVC = new CameraUVC(this);
+            vCameraUVC = new CameraUVC(this);
         }
 
         /// <summary>
@@ -47,9 +48,13 @@ namespace ThermoCam160B
             DsDevice[] systemCameras = DirectShowCam.GetCameraDeviceList();
 
             comboBox_camera_list.Items.Clear();
+            comboBox_vcamera_list.Items.Clear();
             foreach (var camera in systemCameras)
             {
-                comboBox_camera_list.Items.Add(new { Text = camera.Name, Value = camera });
+                if(camera.Name == "ThermoCam160")
+                    comboBox_camera_list.Items.Add(new { Text = camera.Name, Value = camera });
+                else
+                    comboBox_vcamera_list.Items.Add(new { Text = camera.Name, Value = camera });
             }
         }
 
@@ -136,6 +141,7 @@ namespace ThermoCam160B
                 internal short Name;
             }
         }
+
 
         #endregion
 

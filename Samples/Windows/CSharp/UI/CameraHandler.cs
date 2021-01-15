@@ -12,7 +12,9 @@ namespace ThermoCam160B
     public partial class Main : Form
     {
         private Mat matPalette = Palette.GetPresetColorMat("Ironbow");
-        private CameraBase cameraUVC;
+        private CameraBase tCameraUVC;      // Thermal Camera
+        private CameraBase vCameraUVC;      // Visible Camera
+
         private System.Windows.Forms.Timer monitorTimer = new System.Windows.Forms.Timer()
         {
             Interval = 1000,        // on 1 sec timer
@@ -20,7 +22,7 @@ namespace ThermoCam160B
 
         private void MonitorTimer_Tick(object sender, EventArgs e)
         {
-            if(cameraUVC.IsConnect)
+            if(tCameraUVC.IsConnect)
             {
                 int camStatus = GetSystemStatus();
                 if (camStatus != -1)
@@ -85,11 +87,11 @@ namespace ThermoCam160B
                         groupBox_status.Enabled = true;
                         tabControl_Control.Enabled = true;
 
-                        cameraUVC.Connect(itemObj.Text, 
+                        tCameraUVC.Connect(itemObj.Text, 
                                           new DsDevice(itemObj.Value.Mon),
                                           camProperty.Width, camProperty.Height, camProperty.FPS, camProperty.Bpp);
 
-                        cameraUVC.frameEventHandler += frameEventHandler;
+                        tCameraUVC.frameEventHandler += tFrameEventHandler;
                         monitorTimer.Tick += MonitorTimer_Tick;
                         monitorTimer.Start();
                     }
@@ -103,10 +105,10 @@ namespace ThermoCam160B
             {
                 // Do Disconnection
                 monitorTimer.Stop();
-                cameraUVC.Disconnect();
+                tCameraUVC.Disconnect();
 
                 monitorTimer.Tick -= MonitorTimer_Tick;
-                cameraUVC.frameEventHandler -= frameEventHandler;
+                tCameraUVC.frameEventHandler -= tFrameEventHandler;
 
                 tabControl_Control.Enabled = false;
                 groupBox_status.Enabled = false;
@@ -123,16 +125,71 @@ namespace ThermoCam160B
             }
         }
 
+        private void button_vConnect_Click(object sender, EventArgs e)
+        {
+            if (button_vConnect.Text == "Connect")
+            {
+                if (comboBox_vcamera_list.SelectedIndex != -1)
+                {
+                    // Do Connection
+                    button_vConnect.Text = "Disconnect";
+
+                    var itemObj = (comboBox_vcamera_list.SelectedItem as dynamic);
+                    if (itemObj != null)
+                    {
+                        string[] listCap = DirectShowCam.GetCameraCapability(itemObj.Value);
+
+                        DirectShowCam.CameraProperty camProperty = new DirectShowCam.CameraProperty();
+
+                        //foreach (var cap in listCap)
+                        {
+                            camProperty = DirectShowCam.ParseCameraProperty(listCap[0]);    // select just first property
+                        }
+
+                        //tCameraUVC.Connect(itemObj.Text,
+                        //                  new DsDevice(itemObj.Value.Mon),
+                        //                  camProperty.Width, camProperty.Height, camProperty.FPS, camProperty.Bpp);
+
+                        vCameraUVC.Connect(itemObj.Text,
+                                          new DsDevice(itemObj.Value.Mon),
+                                          800, 600, 21, 24);    // FIXED
+
+                        vCameraUVC.frameEventHandler += vFrameEventHandler;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Select one of cameras in uvc camera list", "Information", MessageBoxButtons.OK);
+                }
+            }
+            else
+            {
+                // Do Disconnection
+                vCameraUVC.Disconnect();
+                vCameraUVC.frameEventHandler -= vFrameEventHandler;
+
+                button_vConnect.Text = "Connect";
+
+                if (imageBox_VisiblelView.Image != null)
+                {
+                    imageBox_VisiblelView.Image.Dispose();
+                    imageBox_VisiblelView.Image = null;
+                }
+
+                comboBox_vcamera_list.SelectedIndex = -1;    // unselect any item
+            }
+        }
+
         /// <summary>
         /// event handler for received frame
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void frameEventHandler(object sender, EventArgs e)
+        private void tFrameEventHandler(object sender, EventArgs e)
         {
-            if (!cameraUVC.IsConnect) return;
+            if (!tCameraUVC.IsConnect) return;
 
-            using(Mat matImage = cameraUVC.QueryFrame())
+            using(Mat matImage = tCameraUVC.QueryFrame())
             {
                 if(matImage != null)
                 {
@@ -158,12 +215,12 @@ namespace ThermoCam160B
                         Point[] minPoint, maxPoint;
                         matImage.MinMax(out minValue, out maxValue, out minPoint, out maxPoint);
 
-                        cameraUVC.tempCenterKelvin = BitConverter.ToUInt16(matImage.GetData(matImage.Height / 2, matImage.Width / 2), 0);
+                        tCameraUVC.tempCenterKelvin = BitConverter.ToUInt16(matImage.GetData(matImage.Height / 2, matImage.Width / 2), 0);
 
                         double minTemp = Utils.ConvertKelvinToCelsius(minValue[0] / 100);
                         double avgTemp = Utils.ConvertKelvinToCelsius(CvInvoke.Mean(matImage).V0 / 100);
                         double maxTemp = Utils.ConvertKelvinToCelsius(maxValue[0] / 100);
-                        double roiTemp = Utils.ConvertKelvinToCelsius((double)cameraUVC.tempCenterKelvin / 100);
+                        double roiTemp = Utils.ConvertKelvinToCelsius((double)tCameraUVC.tempCenterKelvin / 100);
 
                         // Update values
                         Invoke((Action) delegate
@@ -173,6 +230,34 @@ namespace ThermoCam160B
                             label_MaxTemp.Text = string.Format("{0:0.0} ℃", maxTemp);
                         });
 
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// event handler for received frame
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void vFrameEventHandler(object sender, EventArgs e)
+        {
+            if (!vCameraUVC.IsConnect) return;
+
+            using (Mat matImage = vCameraUVC.QueryFrame())
+            {
+                if (matImage != null)
+                {
+                    using (Image<Bgr, byte> bgrImage = matImage.ToImage<Bgr, byte>())
+                    {
+                        // Preview Image
+                        if (imageBox_VisiblelView.Image != null)
+                        {
+                            imageBox_VisiblelView.Image.Dispose();
+                        }
+                        imageBox_VisiblelView.Image = Utils.ResizeImage(bgrImage,
+                                                                    imageBox_VisiblelView.Size.Width, imageBox_VisiblelView.Size.Height,
+                                                                    Emgu.CV.CvEnum.Inter.Linear);
                     }
                 }
             }

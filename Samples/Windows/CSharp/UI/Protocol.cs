@@ -12,11 +12,11 @@ namespace ThermoCam160B
         #region Get Version
         private string GetVerBootloader()
         {
-            if (!cameraUVC.IsConnect) return null;
+            if (!tCameraUVC.IsConnect) return null;
 
             if(SendPacket(0, PKT_CMD.CMD_SYS_GET_VERSION, new byte[] { 0x00 }) != PKT_INTERFACE.ERROR)
             {
-                return string.Format("{0}.{1}.{2}", cameraUVC.cmdRxPacket.payload[2], cameraUVC.cmdRxPacket.payload[1], cameraUVC.cmdRxPacket.payload[0]);
+                return string.Format("{0}.{1}.{2}", tCameraUVC.cmdRxPacket.payload[2], tCameraUVC.cmdRxPacket.payload[1], tCameraUVC.cmdRxPacket.payload[0]);
             }
 
             return null;
@@ -24,11 +24,11 @@ namespace ThermoCam160B
 
         private string GetVerMainApp()
         {
-            if (!cameraUVC.IsConnect) return null;
+            if (!tCameraUVC.IsConnect) return null;
 
             if(SendPacket(0, PKT_CMD.CMD_SYS_GET_VERSION, new byte[] { 0x01 }) != PKT_INTERFACE.ERROR)
             {
-                return string.Format("{0}.{1}.{2}", cameraUVC.cmdRxPacket.payload[2], cameraUVC.cmdRxPacket.payload[1], cameraUVC.cmdRxPacket.payload[0]);
+                return string.Format("{0}.{1}.{2}", tCameraUVC.cmdRxPacket.payload[2], tCameraUVC.cmdRxPacket.payload[1], tCameraUVC.cmdRxPacket.payload[0]);
             }
 
             return null;
@@ -38,12 +38,12 @@ namespace ThermoCam160B
         #region Information of Camera Sensor Module 
         private string GetSensorSerial()
         {
-            if (!cameraUVC.IsConnect) return null;
+            if (!tCameraUVC.IsConnect) return null;
 
             if (SendPacket(0, PKT_CMD.CMD_CAM_INFO, new byte[] { 0x01 }) != PKT_INTERFACE.ERROR)
             {
-                return cameraUVC.cmdRxPacket.payload[7].ToString("X") + cameraUVC.cmdRxPacket.payload[6].ToString("X") + cameraUVC.cmdRxPacket.payload[5].ToString("X") + cameraUVC.cmdRxPacket.payload[4].ToString("X")
-                                                + cameraUVC.cmdRxPacket.payload[3].ToString("X") + cameraUVC.cmdRxPacket.payload[2].ToString("X") + cameraUVC.cmdRxPacket.payload[1].ToString("X") + cameraUVC.cmdRxPacket.payload[0].ToString("X");
+                return tCameraUVC.cmdRxPacket.payload[7].ToString("X") + tCameraUVC.cmdRxPacket.payload[6].ToString("X") + tCameraUVC.cmdRxPacket.payload[5].ToString("X") + tCameraUVC.cmdRxPacket.payload[4].ToString("X")
+                                                + tCameraUVC.cmdRxPacket.payload[3].ToString("X") + tCameraUVC.cmdRxPacket.payload[2].ToString("X") + tCameraUVC.cmdRxPacket.payload[1].ToString("X") + tCameraUVC.cmdRxPacket.payload[0].ToString("X");
             }
 
             return null;
@@ -53,12 +53,12 @@ namespace ThermoCam160B
         #region System Status
         private int GetSystemStatus()
         {
-            if (!cameraUVC.IsConnect) return -1;
+            if (!tCameraUVC.IsConnect) return -1;
 
             int camStatus = -1;
             if (SendPacket(0, PKT_CMD.CMD_SYS_GET_STATE, new byte[] { 0x01 }) != PKT_INTERFACE.ERROR)
             {
-                camStatus = cameraUVC.cmdRxPacket.payload[0];
+                camStatus = tCameraUVC.cmdRxPacket.payload[0];
             }
             return camStatus;
         }
@@ -73,7 +73,7 @@ namespace ThermoCam160B
                 payload = payload,
             };
 
-            return cameraUVC.Send(packet);
+            return tCameraUVC.Send(packet);
         }
     }
 }
