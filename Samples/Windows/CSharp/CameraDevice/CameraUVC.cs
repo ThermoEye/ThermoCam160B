@@ -38,17 +38,14 @@ namespace ThermoCam160B
         /// <returns></returns>
         public override bool Connect(string portName, DsDevice camDevice, int width, int height, int fps, int bpp = 16)
         {
-
-            if(base.Connect(portName, camDevice, width, height, fps, bpp))
+            if (base.Connect(portName, camDevice, width, height, fps, bpp))
             {
-                if (portName == "ThermoCam160")
+                Tuple<string, string> resolution = UvcSelectCameraResolution(portName);
+                foreach (var usb in FindUsbPort(resolution.Item1, resolution.Item2))
                 {
-                    foreach (var usb in FindUsbPort("1209", "0160"))
+                    if (vcpPort == null && !string.IsNullOrWhiteSpace(usb.PortName))
                     {
-                        if (vcpPort == null && !string.IsNullOrWhiteSpace(usb.PortName))
-                        {
-                            if (base.ConnectPort(usb.PortName)) return true;
-                        }
+                        if (base.ConnectPort(usb.PortName)) return true;
                     }
                 }
             }
@@ -77,6 +74,23 @@ namespace ThermoCam160B
             return UsbSerialPort.FindUsbSerialPort(vid, pid);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cameraName"></param>
+        /// <returns></returns>
+        private Tuple<string, string> UvcSelectCameraResolution(string portName)
+        {
+            switch (portName)
+            {
+                case "ThermoCam80":
+                    return new Tuple<string, string>("1209", "0080");
+                case "ThermoCam160":
+                    return new Tuple<string, string>("1209", "0160");
+                default:
+                    return new Tuple<string, string>("1209", "0160");
+            }
+        }
 
         /// <summary>
         /// 
