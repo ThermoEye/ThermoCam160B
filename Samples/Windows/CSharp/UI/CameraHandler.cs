@@ -222,6 +222,11 @@ namespace ThermoCam160B
                         double maxTemp = Utils.ConvertKelvinToCelsius(maxValue[0] / 100);
                         double roiTemp = Utils.ConvertKelvinToCelsius((double)tCameraUVC.tempCenterKelvin / 100);
 
+                        minTemp = Utils.CompensateHumanTemperature(minTemp);
+                        avgTemp = Utils.CompensateHumanTemperature(avgTemp);
+                        maxTemp = Utils.CompensateHumanTemperature(maxTemp);
+                        roiTemp = Utils.CompensateHumanTemperature(roiTemp);
+
                         // Update values
                         Invoke((Action) delegate
                         {
