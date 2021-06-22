@@ -57,5 +57,19 @@ namespace ThermoCam160B
         {
             return kelvin * 9 / 5 - CONST_KELVIN2FEHRENHEIT;
         }
+
+        public static double CompensateHumanTemperature(double tempC)
+        {
+            double compTempC = tempC;
+            if(25.0 < tempC && tempC <= 37.5)
+            {
+                compTempC = tempC - (0.9 * (tempC - 36.5));
+            }else
+            if( 37.5 < tempC && tempC <= 40.0)
+            {
+                compTempC = tempC - (0.9 * (tempC - 37.3));
+            }
+            return compTempC;
+        }
     }
 }
