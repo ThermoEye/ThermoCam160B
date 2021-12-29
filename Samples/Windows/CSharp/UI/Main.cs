@@ -51,10 +51,17 @@ namespace ThermoCam160B
             comboBox_vcamera_list.Items.Clear();
             foreach (var camera in systemCameras)
             {
-                if(camera.Name == "ThermoCam160")
-                    comboBox_camera_list.Items.Add(new { Text = camera.Name, Value = camera });
-                else
-                    comboBox_vcamera_list.Items.Add(new { Text = camera.Name, Value = camera });
+                switch(camera.Name)
+                {
+                    case "ThermoCam80":
+                    case "ThermoCam160":
+                        comboBox_camera_list.Items.Add(new { Text = camera.Name, Value = camera });
+                        break;
+
+                    default:
+                        comboBox_vcamera_list.Items.Add(new { Text = camera.Name, Value = camera });
+                        break;
+                }
             }
         }
 

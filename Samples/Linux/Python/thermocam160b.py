@@ -18,6 +18,7 @@ class camThread(threading.Thread):
 def camPreview(previewName, camID, camFourCC):
     cv2.namedWindow(previewName)
     cam = cv2.VideoCapture(camID)
+    # cam = cv2.VideoCapture(camID, cv2.CAP_DSHOW) # For windows
     if cam.isOpened():  # try to get the first frame
 
         if(camFourCC == cv2.VideoWriter.fourcc('Y','1','6',' ')):
@@ -57,6 +58,9 @@ def camPreview(previewName, camID, camFourCC):
 # Create two threads for both visible and thermal camera
 #threadVisibleCam = camThread("visible camera", 0, None)
 threadThermalCam = camThread("thermal camera", "/dev/video2", cv2.VideoWriter.fourcc('Y','1','6',' '))
+
+# threadThermalCam = camThread("thermal camera", 0, cv2.VideoWriter.fourcc('Y','1','6',' ')) # For windows
+
 
 #threadVisibleCam.start()
 threadThermalCam.start()
