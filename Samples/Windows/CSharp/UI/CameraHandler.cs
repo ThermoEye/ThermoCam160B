@@ -210,6 +210,8 @@ namespace ThermoCam160B
                                                                     imageBox_ThermalView.Size.Width, imageBox_ThermalView.Size.Height,
                                                                     Emgu.CV.CvEnum.Inter.Linear);
 
+                        
+
                         // Get Temperatures
                         double[] minValue, maxValue;
                         Point[] minPoint, maxPoint;
