@@ -1475,11 +1475,11 @@ uvc_error_t uvc_stream_start_bandwidth(uvc_stream_handle_t *strmh,
 //#else
 //		LOGI("config_bytes_per_packet=%ld", config_bytes_per_packet);
 //#endif
-		if (UNLIKELY(!config_bytes_per_packet)) {	// XXX added to privent zero divided exception at the following code
-			ret = UVC_ERROR_IO;
-			LOGE("config_bytes_per_packet is zero");
-			goto fail;
-		}
+//		if (UNLIKELY(!config_bytes_per_packet)) {	// XXX added to privent zero divided exception at the following code
+//			ret = UVC_ERROR_IO;
+//			LOGE("config_bytes_per_packet is zero");
+//			goto fail;
+//		}
 
 		/* Go through the altsettings and find one whose packets are at least
 		 * as big as our format's maximum per-packet usage. Assume that the
